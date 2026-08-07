@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PlaceDialog } from "@/components/local-life/place-dialog";
+import { CityDialog } from "@/components/cities/city-dialog";
 import { labelize } from "@/lib/format";
 import { PlaceCategory } from "../../../generated/prisma/enums";
 
@@ -101,7 +102,12 @@ export function LocalLifeView({
     return (
       <EmptyState
         title="No cities yet"
-        description="Add a country and city first, then log local places."
+        description="Add a city first, then log restaurants, groceries, and housing notes."
+        action={
+          countries.length === 0 ? undefined : (
+            <CityDialog countries={countries} />
+          )
+        }
       />
     );
   }
@@ -112,7 +118,10 @@ export function LocalLifeView({
         title="No places yet"
         description="Save restaurants, groceries, study spaces, and housing notes."
         action={
-          <PlaceDialog cities={cities} defaultOpen={defaultOpenCreate} />
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <CityDialog countries={countries} triggerVariant="outline" />
+            <PlaceDialog cities={cities} defaultOpen={defaultOpenCreate} />
+          </div>
         }
       />
     );
@@ -180,7 +189,10 @@ export function LocalLifeView({
             </SelectContent>
           </Select>
         </div>
-        <PlaceDialog cities={cities} defaultOpen={defaultOpenCreate} />
+        <div className="flex flex-wrap gap-2">
+          <CityDialog countries={countries} triggerVariant="outline" />
+          <PlaceDialog cities={cities} defaultOpen={defaultOpenCreate} />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

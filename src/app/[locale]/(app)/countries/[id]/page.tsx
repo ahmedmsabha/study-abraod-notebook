@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getCountry } from "@/actions/countries";
+import { CityDialog } from "@/components/cities/city-dialog";
+import { DeleteCityButton } from "@/components/cities/delete-city-button";
 import { CountryDialog } from "@/components/countries/country-dialog";
 import { DeleteCountryButton } from "@/components/countries/delete-country-button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -88,23 +90,45 @@ export default async function CountryDetailPage({
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
             <CardTitle>Cities ({country.cities.length})</CardTitle>
+            <CityDialog
+              lockCountryId
+              defaultValues={{ countryId: country.id }}
+            />
           </CardHeader>
           <CardContent className="space-y-2">
             {country.cities.length === 0 ? (
               <EmptyState
                 title="No cities"
-                description="Add cities from Local Life later."
+                description="Add a city to attach universities and local places."
                 className="border-0 bg-transparent py-6"
               />
             ) : (
               country.cities.map((city) => (
                 <div
                   key={city.id}
-                  className="rounded-lg border px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
                 >
-                  {city.name}
+                  <span>{city.name}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    <CityDialog
+                      mode="edit"
+                      cityId={city.id}
+                      lockCountryId
+                      defaultValues={{
+                        countryId: country.id,
+                        name: city.name,
+                        costOfLivingEstimate: city.costOfLivingEstimate ?? "",
+                        housingNotes: city.housingNotes ?? "",
+                        transportNotes: city.transportNotes ?? "",
+                        weatherNotes: city.weatherNotes ?? "",
+                        safetyNotes: city.safetyNotes ?? "",
+                      }}
+                      triggerLabel={t("edit")}
+                    />
+                    <DeleteCityButton id={city.id} />
+                  </div>
                 </div>
               ))
             )}

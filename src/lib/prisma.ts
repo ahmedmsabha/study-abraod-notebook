@@ -1,17 +1,32 @@
-import { PrismaClient } from "../../generated/prisma/client";
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../../generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  pgPool: Pool | undefined;
 };
 
-function createPrismaClient() {
+function createPool() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  return new Pool({
+    connectionString,
+    // Prisma Postgres free tiers have limited slots; keep the app pool small.
+    max: 3,
+    connectionTimeoutMillis: 5_000,
+    idleTimeoutMillis: 30_000,
+  });
+}
+
+function createPrismaClient() {
+  const pool = globalForPrisma.pgPool ?? createPool();
+  globalForPrisma.pgPool = pool;
+
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 

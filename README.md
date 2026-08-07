@@ -21,7 +21,10 @@ Link your Prisma Postgres database (writes `DATABASE_URL` to `.env`):
 npx prisma postgres link --database "<your-db-id>"
 ```
 
-Or copy [`.env.example`](.env.example) to `.env` and set `DATABASE_URL` manually.
+Or copy [`.env.example`](.env.example) to `.env` and set both URLs:
+
+- `DATABASE_URL` — use `pooled.db.prisma.io` for the Next.js app (avoids connection-limit errors)
+- `DIRECT_URL` — use `db.prisma.io` for migrations / Prisma CLI
 
 Then:
 
