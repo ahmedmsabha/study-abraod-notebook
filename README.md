@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000) — redirects to `/en/dashbo
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start Next.js dev server |
-| `npm run build` | Production build |
+| `npm run build` | Generate Prisma Client, then production build |
 | `npm run start` | Start production server |
 | `npm run lint` | ESLint |
 | `npm run db:generate` | Generate Prisma Client |
