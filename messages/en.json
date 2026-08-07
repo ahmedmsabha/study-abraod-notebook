@@ -1,0 +1,98 @@
+{
+  "App": {
+    "name": "Academic Compass",
+    "tagline": "MSc applications research notebook"
+  },
+  "Nav": {
+    "dashboard": "Dashboard",
+    "countries": "Countries",
+    "universities": "Universities",
+    "programs": "Programs",
+    "professors": "Professors",
+    "scholarships": "Scholarships",
+    "applications": "Applications",
+    "tasks": "Tasks",
+    "localLife": "Local Life",
+    "notes": "Notes",
+    "main": "Main",
+    "research": "Research",
+    "planning": "Planning",
+    "openMenu": "Open navigation",
+    "closeMenu": "Close navigation"
+  },
+  "Header": {
+    "searchPlaceholder": "Search universities, professors, programs…",
+    "searchAria": "Global search",
+    "toggleTheme": "Toggle theme",
+    "switchLocale": "Switch language",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "Common": {
+    "loading": "Loading…",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "Please try again. If the problem continues, refresh the page.",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "That page does not exist or the link is outdated.",
+    "retry": "Retry",
+    "emptyTitle": "Nothing here yet",
+    "emptyDescription": "Add your first item to get started.",
+    "lastVerified": "Last verified",
+    "neverVerified": "Not verified yet",
+    "officialSource": "Official source",
+    "officialSourceHint": "Facts from university or provider pages. Verify before relying on them.",
+    "userNote": "Your note",
+    "userNoteHint": "Personal notes — not an official source.",
+    "comingSoon": "This section will be filled in the next build phase.",
+    "actions": "Actions",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "back": "Back to dashboard"
+  },
+  "Pages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of applications, deadlines, and research progress."
+    },
+    "countries": {
+      "title": "Countries",
+      "description": "Study destinations, visa notes, and cost of living research."
+    },
+    "universities": {
+      "title": "Universities",
+      "description": "Shortlist and track universities across countries."
+    },
+    "programs": {
+      "title": "Programs",
+      "description": "Degree programs, deadlines, fit scores, and requirements."
+    },
+    "professors": {
+      "title": "Professors",
+      "description": "Supervisors, research fit, contact status, and outreach history."
+    },
+    "scholarships": {
+      "title": "Scholarships",
+      "description": "Funding opportunities with deadlines and eligibility notes."
+    },
+    "applications": {
+      "title": "Applications",
+      "description": "Track each application through the admissions pipeline."
+    },
+    "tasks": {
+      "title": "Tasks & Calendar",
+      "description": "Deadlines, follow-ups, and day-to-day application work."
+    },
+    "localLife": {
+      "title": "Local Life",
+      "description": "Restaurants, groceries, housing notes, and city logistics."
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "Linked research notes with tags and full-text search."
+    }
+  }
+}

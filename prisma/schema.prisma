@@ -1,0 +1,468 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Auth stub (single-user now; expand later) ---
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- Enums ---
+
+enum UniversityStatus {
+  RESEARCHING
+  SHORTLISTED
+  APPLYING
+  APPLIED
+  OFFERED
+  REJECTED
+  ARCHIVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum DegreeType {
+  MSc
+  MEng
+  MASc
+  MPhil
+  PhD
+  Other
+}
+
+enum ProgramMode {
+  THESIS
+  COURSEWORK
+  MIXED
+  UNKNOWN
+}
+
+enum AcceptingStudents {
+  YES
+  NO
+  UNKNOWN
+}
+
+enum ContactStatus {
+  NOT_CONTACTED
+  FOLLOWING
+  RESEARCHING
+  EMAIL_DRAFTED
+  EMAILED
+  REPLIED
+  MEETING
+  NOT_A_FIT
+}
+
+enum FundingType {
+  FULL
+  PARTIAL
+  TUITION_WAIVER
+  STIPEND
+  RESEARCH_ASSISTANTSHIP
+  TEACHING_ASSISTANTSHIP
+  OTHER
+}
+
+enum ScholarshipStatus {
+  RESEARCHING
+  ELIGIBLE
+  APPLYING
+  APPLIED
+  AWARDED
+  NOT_ELIGIBLE
+  EXPIRED
+}
+
+enum RequirementCategory {
+  GPA
+  TOEFL
+  IELTS
+  GRE
+  CV
+  SOP
+  RECOMMENDATION
+  TRANSCRIPT
+  PORTFOLIO
+  INTERVIEW
+  SUPERVISOR
+  OTHER
+}
+
+enum ApplicationStatus {
+  RESEARCHING
+  PREPARING
+  READY_TO_SUBMIT
+  SUBMITTED
+  INTERVIEW
+  OFFERED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ContactChannel {
+  EMAIL
+  LINKEDIN
+  WEBSITE
+  MEETING
+  OTHER
+}
+
+enum PlaceCategory {
+  RESTAURANT
+  GROCERY
+  CAFE
+  HOUSING
+  TRANSPORT
+  HOSPITAL
+  STUDY_SPACE
+  GYM
+  OTHER
+}
+
+// --- Core geography ---
+
+model Country {
+  id                 String   @id @default(cuid())
+  name               String
+  code               String   @unique
+  region             String?
+  currency           String?
+  languageNotes      String?
+  visaNotes          String?
+  costOfLivingNotes  String?
+  safetyNotes        String?
+  generalNotes       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  cities       City[]
+  universities University[]
+  scholarships Scholarship[]
+  linkedNotes  Note[]
+
+  @@index([region])
+  @@index([name])
+}
+
+model City {
+  id                    String   @id @default(cuid())
+  countryId             String
+  name                  String
+  costOfLivingEstimate  String?
+  housingNotes          String?
+  transportNotes        String?
+  weatherNotes          String?
+  safetyNotes           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  country      Country      @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  universities University[]
+  places       Place[]
+
+  @@index([countryId])
+  @@index([name])
+}
+
+// --- Academic entities ---
+
+model University {
+  id                     String           @id @default(cuid())
+  countryId              String
+  cityId                 String?
+  name                   String
+  officialWebsite        String?
+  facultyOrDepartment    String?
+  universityRankingNotes String?
+  tuitionNotes           String?
+  applicationPortalUrl   String?
+  internationalOfficeUrl String?
+  notes                  String?
+  status                 UniversityStatus @default(RESEARCHING)
+  priority               Priority         @default(MEDIUM)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  country      Country       @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  city         City?         @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  programs     Program[]
+  professors   Professor[]
+  scholarships Scholarship[]
+  linkedNotes  Note[]
+  tasks        Task[]        @relation("TaskUniversity")
+
+  @@index([countryId])
+  @@index([cityId])
+  @@index([status])
+  @@index([priority])
+  @@index([name])
+}
+
+model Program {
+  id                   String      @id @default(cuid())
+  universityId         String
+  name                 String
+  degreeType           DegreeType  @default(MSc)
+  department           String?
+  mode                 ProgramMode @default(UNKNOWN)
+  duration             String?
+  officialUrl          String?
+  applicationDeadline  DateTime?
+  intakeTerm           String?
+  tuitionAmount        Decimal?    @db.Decimal(12, 2)
+  currency             String?
+  minimumGpa           String?
+  languageRequirement  String?
+  greRequired          Boolean     @default(false)
+  supervisorRequired   Boolean     @default(false)
+  applicationFee       Decimal?    @db.Decimal(12, 2)
+  requiredDocuments    String?
+  suitableForMeScore   Int?
+  fitReason            String?
+  notes                String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  university   University    @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  requirements Requirement[]
+  applications Application[]
+  professors   Professor[]   @relation("ProgramProfessors")
+  linkedNotes  Note[]
+  tasks        Task[]        @relation("TaskProgram")
+
+  @@index([universityId])
+  @@index([degreeType])
+  @@index([applicationDeadline])
+  @@index([suitableForMeScore])
+}
+
+model Professor {
+  id                      String            @id @default(cuid())
+  universityId            String
+  fullName                String
+  title                   String?
+  department              String?
+  generalSpecialization   String?
+  researchSpecializations String[]
+  researchKeywords        String[]
+  officialProfileUrl      String?
+  labUrl                  String?
+  linkedinUrl             String?
+  googleScholarUrl        String?
+  personalWebsiteUrl      String?
+  email                   String?
+  acceptingStudents       AcceptingStudents @default(UNKNOWN)
+  lastVerifiedAt          DateTime?
+  fitScore                Int?
+  fitReason               String?
+  contactStatus           ContactStatus     @default(NOT_CONTACTED)
+  notes                   String?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  university  University    @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  contactLogs ContactLog[]
+  programs    Program[]     @relation("ProgramProfessors")
+  linkedNotes Note[]
+  tasks       Task[]        @relation("TaskProfessor")
+
+  @@index([universityId])
+  @@index([contactStatus])
+  @@index([acceptingStudents])
+  @@index([fitScore])
+  @@index([fullName])
+}
+
+model Scholarship {
+  id                   String            @id @default(cuid())
+  universityId         String?
+  countryId            String?
+  name                 String
+  provider             String?
+  officialUrl          String?
+  fundingType          FundingType       @default(OTHER)
+  valueAmount          Decimal?          @db.Decimal(12, 2)
+  currency             String?
+  coverageDescription  String?
+  eligibility          String?
+  deadline             DateTime?
+  applicationMethod    String?
+  status               ScholarshipStatus @default(RESEARCHING)
+  notes                String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  university  University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  country     Country?    @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  linkedNotes Note[]
+  tasks       Task[]      @relation("TaskScholarship")
+
+  @@index([universityId])
+  @@index([countryId])
+  @@index([fundingType])
+  @@index([status])
+  @@index([deadline])
+}
+
+model Requirement {
+  id                String              @id @default(cuid())
+  programId         String
+  category          RequirementCategory @default(OTHER)
+  title             String
+  details           String?
+  minimumValue      String?
+  officialSourceUrl String?
+  verifiedAt        DateTime?
+  isCompleted       Boolean             @default(false)
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([category])
+  @@index([isCompleted])
+}
+
+model Application {
+  id                         String            @id @default(cuid())
+  programId                  String
+  status                     ApplicationStatus @default(RESEARCHING)
+  submittedAt                DateTime?
+  decisionDate               DateTime?
+  applicationPortalUrl       String?
+  applicationReferenceNumber String?
+  feePaid                    Boolean           @default(false)
+  notes                      String?
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([status])
+}
+
+model Task {
+  id                    String       @id @default(cuid())
+  title                 String
+  description           String?
+  dueDate               DateTime?
+  status                TaskStatus   @default(TODO)
+  priority              TaskPriority @default(MEDIUM)
+  relatedUniversityId   String?
+  relatedProgramId      String?
+  relatedScholarshipId  String?
+  relatedProfessorId    String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  relatedUniversity  University?  @relation("TaskUniversity", fields: [relatedUniversityId], references: [id], onDelete: SetNull)
+  relatedProgram     Program?     @relation("TaskProgram", fields: [relatedProgramId], references: [id], onDelete: SetNull)
+  relatedScholarship Scholarship? @relation("TaskScholarship", fields: [relatedScholarshipId], references: [id], onDelete: SetNull)
+  relatedProfessor   Professor?   @relation("TaskProfessor", fields: [relatedProfessorId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([relatedUniversityId])
+  @@index([relatedProgramId])
+  @@index([relatedScholarshipId])
+  @@index([relatedProfessorId])
+}
+
+model ContactLog {
+  id             String         @id @default(cuid())
+  professorId    String
+  date           DateTime       @default(now())
+  channel        ContactChannel @default(EMAIL)
+  subject        String?
+  messageSummary String?
+  outcome        String?
+  followUpDate   DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+
+  @@index([professorId])
+  @@index([date])
+  @@index([followUpDate])
+}
+
+model Place {
+  id         String        @id @default(cuid())
+  cityId     String
+  name       String
+  category   PlaceCategory @default(OTHER)
+  mapUrl     String?
+  websiteUrl String?
+  priceLevel String?
+  notes      String?
+  rating     Float?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@index([cityId])
+  @@index([category])
+}
+
+model Note {
+  id           String   @id @default(cuid())
+  title        String
+  content      String
+  tags         String[]
+  countryId    String?
+  universityId String?
+  programId    String?
+  professorId  String?
+  scholarshipId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  country     Country?     @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  university  University?  @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  program     Program?     @relation(fields: [programId], references: [id], onDelete: SetNull)
+  professor   Professor?   @relation(fields: [professorId], references: [id], onDelete: SetNull)
+  scholarship Scholarship? @relation(fields: [scholarshipId], references: [id], onDelete: SetNull)
+
+  @@index([countryId])
+  @@index([universityId])
+  @@index([programId])
+  @@index([professorId])
+  @@index([scholarshipId])
+  @@index([title])
+}
